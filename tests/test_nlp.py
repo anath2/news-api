@@ -24,7 +24,9 @@ class TestLsa:
         assert isinstance(matrix, pd.DataFrame)
 
     def test_get_similarity(self, news_story):
-        headline, story = news_story
+        headline = news_story['title']
+        story = news_story['text']
+
         sentences = nlp.make_sentences(story)
         lsa = nlp.LSA(sentences)
         matrix = lsa.get_occurrence_matrix()

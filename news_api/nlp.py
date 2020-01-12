@@ -35,7 +35,20 @@ class LSA:
 
     def get_occurrence_matrix(self) -> pd.DataFrame:
         '''
+        RETURNS:
+            An occurrence matrix of the form :
+
+            d1  d2  d3 ...
+            -------------------------------
+        t1
+        t2
+        t3
+        ...
+
         Creates an occurence matrix using a list of documents and a vocabulary
+        An occurrence matrix consists of rows representing terms in the vocabulary and
+        columns indicating documents. Entries of the matrix represent the frequency of
+        terms in the corresponding documents
         '''
         matrix = pd.DataFrame()
 
@@ -57,7 +70,7 @@ class LSA:
         and returns a list of similarity scores for each document
         '''
         embedding = self._get_embedding(doc)
-        return embedding.dot(occurence_matrix.transpose())  # Since columns represent the embeddings
+        return embedding.dot(occurence_matrix)  # Since columns represent the embeddings
 
     def _calculate_vocab(self):
         docstr = ' '.join(self._doclist)

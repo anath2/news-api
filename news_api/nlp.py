@@ -27,11 +27,13 @@ class LSA:
     '''
 
     _POS = ['PROPN', 'NOUN']
+    _SVD_RANK = 3
 
-    def __init__(self, doclist: List, vocab: Optional[List] = None):
+    def __init__(self, doclist: List, svd_rank: int = 3, vocab: Optional[List] = None):
         self._nlp = spacy.load(_SPACY_LANG_PACK)
         self._doclist = doclist
         self._vocabulary = vocab if vocab is not None else self._calculate_vocab()
+        self._svd_rank = svd_rank
 
     def get_occurrence_matrix(self) -> pd.DataFrame:
         '''
@@ -58,19 +60,56 @@ class LSA:
 
         return matrix.transpose()
 
-    def get_similarity(self, doc, occurence_matrix) -> List:
+    def get_related_keywords(self, doc: str, occurence_matrix: pd.DataFrame) -> List:
+        '''
+        Get top keywords related to the document to compared with the rest of the
+        corpus
+        '''
+        similarity_scores = self.get_similarity(doc, occurence_matrix)
+        rounded = similarity_scores.apply(lambda x: round(x, 2))
+        top = rounded[rounded > 0]
+        docs = top.index
+        return [t.text for t in self._nlp(' '.join(docs)) if t.pos_ in self._POS]
+
+    def get_similarity(self, doc: str, occurence_matrix: pd.DataFrame) -> pd.Series:
         '''
         ARGS:
             doc: The doc to be compared
             occurrence_matrix: The document to be compared against
+
         RETURNS:
-            List: Similarity score for each document
+            A series with similairity scores
 
         Calculculates similarity between a document and an occurence matrix
         and returns a list of similarity scores for each document
         '''
+        U, s, Vt = self._calculate_svd(occurence_matrix)
+        V = Vt.transpose()
+        S = np.zeros((len(s), len(s),))
+        np.fill_diagonal(S, s)
+
+        U_red = U[:, :self._svd_rank]
+        S_red = S[:self._svd_rank, :self._svd_rank]
+        V_red = V[: , :self._svd_rank]
+        Vt_red = V_red.transpose()
+
         embedding = self._get_embedding(doc)
-        return embedding.dot(occurence_matrix)  # Since columns represent the embeddings
+        embedding_red = np.dot(np.dot(embedding, U_red), np.linalg.inv(S_red))   # Q^t . U . S^-1
+
+        scores = []
+        for row in V_red:
+            cosine = np.dot(embedding_red, row) / np.linalg.norm(embedding_red) * np.linalg.norm(row)
+            scores.append(cosine)
+
+        return pd.Series(scores, index=occurence_matrix.columns, name='Similairity')  # Since order of documents is preserved
+
+
+
+
+    def _calculate_svd(self, matrix):
+        array = matrix.to_numpy(dtype='int32')
+        U, S, Vt = np.linalg.svd(array, full_matrices=False)
+        return U, S, Vt
 
     def _calculate_vocab(self):
         docstr = ' '.join(self._doclist)

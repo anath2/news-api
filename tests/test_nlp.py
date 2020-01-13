@@ -32,4 +32,14 @@ class TestLsa:
         matrix = lsa.get_occurrence_matrix()
         similarity_scores = lsa.get_similarity(headline, matrix)
         assert isinstance(similarity_scores, pd.Series)
-        print(similarity_scores)
+
+    def test_get_related_keywords(self, news_story):
+        headline = news_story['title']
+        story = news_story['text']
+
+        sentences = nlp.make_sentences(story)
+        lsa = nlp.LSA(sentences)
+        matrix = lsa.get_occurrence_matrix()
+        related_keywords = lsa.get_related_keywords(headline, matrix)
+        assert isinstance(related_keywords, list)
+        print(related_keywords)

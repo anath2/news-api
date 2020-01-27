@@ -4,6 +4,8 @@ import os
 from typing import Dict, Optional
 
 from flask import Flask
+from redis import Redis
+from celery import Celery
 from flask_restful import Api
 
 from . import resources
@@ -73,7 +75,7 @@ def create_celery(app: Flask, celery_name: str = __name__):
 
         def __call__(self, *args, **kwargs):
             with app.app_context():
-                return super().__call(*args, **kwargs)
+                return super().__call__(*args, **kwargs)
 
     instance.Task = ContextTask
     return instance

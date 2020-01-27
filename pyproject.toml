@@ -13,6 +13,8 @@ feedparser = "^5.2.1"
 bs4 = "^0.0.1"
 requests = "^2.22.0"
 flask-restful = "^0.3.7"
+celery = "^4.4.0"
+redis = "^3.3.11"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

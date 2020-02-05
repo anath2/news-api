@@ -6,7 +6,7 @@ from news_api import news
 
 
 def test_reuters():
-    result = news.get_reuters_news()
+    result = news.get_news_reuters()
     assert isinstance(result, list)
     assert result
 

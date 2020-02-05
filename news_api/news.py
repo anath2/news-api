@@ -79,8 +79,8 @@ def get_news_from_db(date: dt.date):
         conn = db.get_db()
         rows = db.read_all('news', conn)
         date_str = date.strftime(constants.DATE_FMT)
-        rows = db.read_all('news', conn)
         date_rows = [r for r in rows if r['dated'] == date_str]
+        return date_rows
     except exceptions.DBError as err:
         raise NewsApiError(err)
 
@@ -95,7 +95,7 @@ def save_news_to_db(news_data: List):
     '''
     try:
         conn = db.get_db()
-        db.save('news', conn, data)
+        db.save('news', conn, news_data)
         conn.commit()
     except exceptions.DBError as err:
         conn.rollback()

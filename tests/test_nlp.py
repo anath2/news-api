@@ -42,4 +42,3 @@ class TestLsa:
         matrix = lsa.get_occurrence_matrix()
         related_keywords = lsa.get_related_keywords(headline, matrix)
         assert isinstance(related_keywords, list)
-        print(related_keywords)

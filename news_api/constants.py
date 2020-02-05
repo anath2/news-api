@@ -14,3 +14,9 @@ SCHEMA = \
      dated TEXT NOT NULL
     );
     '''
+
+FEED_URLS = {
+    'reuters': 'http://feeds.reuters.com/reuters/AFRICAWorldNews'
+}
+
+DATE_FMT = '%Y%m%d'

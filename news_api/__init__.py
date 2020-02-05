@@ -41,6 +41,7 @@ def create_app(
 
     # Adds api resources
     api = Api(app)
+    api.add_resource(resources.DailyNews, '/latest')
     api.add_resource(resources.News, '/news')
 
     # Adds application setup

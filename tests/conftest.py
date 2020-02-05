@@ -30,32 +30,7 @@ def news_data(data_path):
 
 
 @pytest.fixture
-def init_sql():
-    news_headline = 'Test Headline'
-    news_content = 'Test Content'
-    today = dt.datetime.now().date().strftime('%Y%m%d')
-
-    sql = '''
-    INSERT INTO news (
-      title,
-      text,
-      dated
-    ) values (
-      '{news_headline}',
-      '{news_content}',
-      '{today}'
-    );
-    '''.format(
-        news_headline=news_headline,
-        news_content=news_content,
-        today=today
-    )
-
-    return sql
-
-
-@pytest.fixture
-def app(init_sql):
+def app():
     db_fd, db_path = tempfile.mkstemp()
 
     app = create_app({
@@ -65,7 +40,6 @@ def app(init_sql):
 
     with app.app_context():
         db.init_db()
-        db.get_db().executescript(init_sql)
 
     yield app
 

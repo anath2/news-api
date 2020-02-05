@@ -8,10 +8,12 @@ from typing import List
 
 import requests
 import feedparser
+import pandas as pd
 from bs4 import BeautifulSoup
 from sqlite3 import Connection
 
-from . import exceptions, constants, db
+
+from . import exceptions, constants, db, nlp
 
 
 REUTERS_FEED_URL = 'http://feeds.reuters.com/reuters/AFRICAWorldNews'
@@ -65,6 +67,31 @@ def parse_link_reuters(url: str) -> str:
         return '\n'.join(paras)
     except Exception as err:
         raise exceptions.ScrapingError(err)
+
+
+def get_locations_mentioned(news_txt: str, geo_db: pd.DataFrame) -> List:
+    '''
+    ARGS:
+        news_txt: News text
+        geo_db: The database containing geodata
+
+    Get the list of locations mentioned in the text
+    '''
+    try:
+        entities = nlp.get_entities(news_txt)
+    except Exception as err:
+        raise exceptions.NewsApiError(err)
+
+    geo_entity_types = ['NORP', 'GPE']
+    geo_entities = [e.lower() for e, t in entities if t in geo_entity_types]
+    geo_entities = list(set(geo_entities))
+
+    for _, row in geo_db.iterrows():  # Replace nationality, language etc with location
+        nationality = row['nationalities'].lower()
+        location = row['countries'].lower()
+        geo_entities = [location if g == nationality else g for g in geo_entities]
+
+    return geo_entities
 
 
 def get_news_from_db(date: dt.date):

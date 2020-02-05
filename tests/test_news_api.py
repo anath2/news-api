@@ -3,7 +3,6 @@ Test api and end points
 '''
 
 import json
-import pprint
 import datetime as dt
 from news_api import __version__, create_app, constants
 
@@ -28,6 +27,5 @@ class TestEndpoints:
         client.post('/news', data={'news_data': json.dumps(news_data)})
         resp = client.get('/latest')
         data = json.loads(resp.get_data(as_text=True))
-        # assert data
-        pprint.pprint(data)
+        assert data
         assert isinstance(data, list)

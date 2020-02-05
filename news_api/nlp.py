@@ -2,8 +2,8 @@
 NLP library
 '''
 
-from collections import OrderedDict
 from typing import List, Optional
+from collections import OrderedDict, Counter
 
 import spacy
 import numpy as np
@@ -15,10 +15,25 @@ _SPACY_LANG_PACK = 'en_core_web_sm'
 
 def make_sentences(document: str) -> List:
     '''
+    ARGS:
+        document: The document to be analysed
+
     Returns a list of sentences for a given document
     '''
     nlp = spacy.load(_SPACY_LANG_PACK)
     return [s.text for s in nlp(document).sents]
+
+
+def get_entities(document: str) -> List:
+    '''
+    ARGS:
+        document: The document to be analysed
+
+    Get english language entities from a piece of text
+    '''
+    nlp = spacy.load(_SPACY_LANG_PACK)
+    doc = nlp(document)
+    return [(ent.text, ent.label_) for ent in doc.ents]
 
 
 class LSA:
@@ -95,16 +110,13 @@ class LSA:
 
         embedding = self._get_embedding(doc)
         embedding_red = np.dot(np.dot(embedding, U_red), np.linalg.inv(S_red))   # Q^t . U . S^-1
-
         scores = []
+
         for row in V_red:
             cosine = np.dot(embedding_red, row) / np.linalg.norm(embedding_red) * np.linalg.norm(row)
             scores.append(cosine)
 
         return pd.Series(scores, index=occurence_matrix.columns, name='Similairity')  # Since order of documents is preserved
-
-
-
 
     def _calculate_svd(self, matrix):
         array = matrix.to_numpy(dtype='int32')

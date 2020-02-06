@@ -86,10 +86,12 @@ def update_news_reuters(self):
     '''
     APP.logger.info('Getting cached news...')
     previous = self.cached_news
+
     APP.logger.info('Downloading news from reuters...')
     new_news = news.get_news_reuters()
+    self.save_news(new_news)
+
     prev_titles = set([n['title'] for n in previous])
     updates = [s for s in new_news if s['title'] not in prev_titles]
     APP.logger.info('Saving news to db...')
     requests.post('{}/news'.format(APP.config['APP_HOST']), data={'news_data': json.dumps(updates)})
-    self.save_news(updates)

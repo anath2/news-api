@@ -21,7 +21,6 @@ def geo_db(app):
 
 def test_news(client, geo_db):
     today_news = news.get_news_reuters()
-
     client.post('/news', data={'news_data': json.dumps(today_news)})
     resp = client.get('/latest')
     data = json.loads(resp.get_data(as_text=True))
@@ -30,8 +29,6 @@ def test_news(client, geo_db):
         matched = False
 
         for d_in in today_news:
-            d_in = {k: v for k, v in d_in.items() if k != 'id'}  # ignore ID
-
             if all(d_in[k] == d_out[k] for k in d_in):
                 matched = True
 

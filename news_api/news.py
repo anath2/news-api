@@ -91,6 +91,9 @@ def get_locations_mentioned(news_txt: str, geo_db: pd.DataFrame) -> List:
         location = row['countries'].lower()
         geo_entities = [location if g == nationality else g for g in geo_entities]
 
+    list_of_locations = list(geo_db['countries'].str.lower())
+    geo_entities = [e for e in geo_entities if e in list_of_locations]  # Filter non nationalities
+    geo_entities = list(set(geo_entities))
     return geo_entities
 
 
